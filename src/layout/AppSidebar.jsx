@@ -71,6 +71,7 @@ const othersItems = [
     icon: <LuUsersRound />,
     name: "Staffs",
     subItems: [
+      { name: "All Users", path: "/users", pro: false },
       { name: "Create Staff", path: "/create-staff", pro: false },
     ],
   },
