@@ -66,8 +66,8 @@ const othersItems = [
     icon: <FiUsers className="text-orange-500 text-xl"/>,
     name: <span className="text-orange-500">Staff Management</span>,
     subItems: [
-      { name: <span className="text-orange-500">All Staff</span>, path: "/all-staff", pro: false },
-      { name: <span className="text-orange-500">Create Staff</span>, path: "/create-staff", pro: false },
+      { name: "All Users", path: "/users", pro: false },
+      { name: "Create Staff", path: "/create-staff", pro: false },
     ],
   },
 ];

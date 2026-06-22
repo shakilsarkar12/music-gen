@@ -40,6 +40,22 @@ const UserSchema = new mongoose.Schema(
     lastLogin: {
       type: Date,
     },
+    bio: {
+      type: String,
+      default: "",
+    },
+    address: {
+      country: { type: String, default: "" },
+      cityState: { type: String, default: "" },
+      postalCode: { type: String, default: "" },
+      taxId: { type: String, default: "" },
+    },
+    socialLinks: {
+      facebook: { type: String, default: "" },
+      x: { type: String, default: "" },
+      linkedin: { type: String, default: "" },
+      instagram: { type: String, default: "" },
+    },
   },
   {
     timestamps: true,
