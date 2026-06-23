@@ -21,8 +21,7 @@ import { NextResponse } from "next/server";
 // Add every domain that is allowed to call this API from the browser.
 const ALLOWED_ORIGINS = [
   "https://myownsongs.com",
-  "https://www.myownsongs.com",
-  "https://myownsongs.com/pages/generate",
+  "https://music-gen.myshopify.com",
   "http://localhost:3000",
   "http://localhost:3001",
 ].filter(Boolean);

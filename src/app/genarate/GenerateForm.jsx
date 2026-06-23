@@ -17,10 +17,10 @@ async function pollStatus(taskId, type, onProgress) {
       return;
     }
     let attempts = 0;
-    const maxAttempts = 90; // ~3 minutes max (music can take 2-3 min)
+    const maxAttempts = 300; // ~10 minutes max (music can take 2-5 min or more when busy)
     const interval = setInterval(async () => {
       attempts++;
-      onProgress && onProgress(Math.min(90, attempts * 1));
+      onProgress && onProgress(Math.min(90, attempts * 0.45));
       try {
         const res = await fetch(`/api/suno/status?taskId=${taskId}&type=${type}`);
         const data = await res.json();

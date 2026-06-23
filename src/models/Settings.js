@@ -4,6 +4,7 @@ const SettingsSchema = new mongoose.Schema(
   {
     shopifySecretId: { type: String, default: "" },
     shopifyClientId: { type: String, default: "" },
+    shopifyAdminApiKey: { type: String, default: "" },
     shopUrl: { type: String, default: "" },
     sunoApiKey: { type: String, default: "" },
     notificationEmail: { type: String, default: "" },

@@ -9,7 +9,7 @@ import { useUser } from "@/context/UserContext";
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
-  const { user, mutateUser } = useUser();
+  const { user, mutateUser, loading: userLoading } = useUser();
   
   const [formData, setFormData] = useState({
     name: "",
@@ -80,6 +80,9 @@ export default function UserInfoCard() {
     }
   };
 
+  if (userLoading) {
+    return <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 animate-pulse bg-gray-100 dark:bg-gray-800/50 h-[300px]"></div>;
+  }
   if (!user) return null;
 
   return (

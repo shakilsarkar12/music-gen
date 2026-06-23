@@ -5,6 +5,7 @@ import Order from "@/models/Order";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import Badge from "@/components/ui/badge/Badge";
 import { notFound } from "next/navigation";
+import { getSettings } from "@/lib/getSettings";
 
 export const dynamic = "force-dynamic";
 
@@ -148,21 +149,30 @@ export default async function OrderedMusicDetailPage({ params }) {
                         <img src={track.imageUrl} alt={track.title} className="mb-3 h-32 w-full rounded-lg object-cover" />
                       )}
                       {audioUrl && (
-                        <a
-                          href={audioUrl}
-                          download={`${track.title || "music"}.mp3`}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-50 py-2 text-xs font-semibold text-brand-500 transition hover:bg-brand-100 dark:bg-brand-500/10 dark:text-brand-400 dark:hover:bg-brand-500/20"
-                        >
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
-                          </svg>
-                          Download this track
-                        </a>
+                        <div className="flex flex-col gap-2 mt-3">
+                          <audio controls src={audioUrl} className="w-full h-10" />
+                          <a
+                            href={audioUrl}
+                            download={`${track.title || "music"}.mp3`}
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-50 py-2 text-xs font-semibold text-brand-500 transition hover:bg-brand-100 dark:bg-brand-500/10 dark:text-brand-400 dark:hover:bg-brand-500/20"
+                          >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            Download this track
+                          </a>
+                        </div>
                       )}
                       {track.duration && (
                         <p className="mt-2 text-center text-xs text-gray-400">
                           Duration: {Math.floor(track.duration / 60)}:{String(Math.floor(track.duration % 60)).padStart(2, "0")} min
                         </p>
+                      )}
+                      {track.lyrics && (
+                        <div className="mt-3">
+                          <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Track Lyrics:</p>
+                          <pre className="whitespace-pre-wrap text-xs text-gray-500 dark:text-gray-400 max-h-40 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-800 rounded">{track.lyrics}</pre>
+                        </div>
                       )}
                     </div>
                   );

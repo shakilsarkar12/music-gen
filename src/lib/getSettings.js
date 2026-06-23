@@ -24,6 +24,7 @@ export async function getSettings() {
     shopUrl: settings?.shopUrl || "",
     shopifyClientId: settings?.shopifyClientId || "",
     shopifySecretId: settings?.shopifySecretId || "",
+    shopifyAdminApiKey: settings?.shopifyAdminApiKey || "",
     notificationEmail: settings?.notificationEmail || "",
     contactPhone: settings?.contactPhone || "",
   };

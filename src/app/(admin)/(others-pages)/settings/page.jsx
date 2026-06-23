@@ -14,6 +14,7 @@ export default function SettingsPage() {
   const [formData, setFormData] = useState({
     shopifySecretId: "",
     shopifyClientId: "",
+    shopifyAdminApiKey: "",
     shopUrl: "",
     sunoApiKey: "",
     notificationEmail: "",
@@ -32,6 +33,7 @@ export default function SettingsPage() {
         setFormData({
           shopifySecretId: data.shopifySecretId || "",
           shopifyClientId: data.shopifyClientId || "",
+          shopifyAdminApiKey: data.shopifyAdminApiKey || "",
           shopUrl: data.shopUrl || "",
           sunoApiKey: data.sunoApiKey || "",
           notificationEmail: data.notificationEmail || "",
@@ -112,6 +114,16 @@ export default function SettingsPage() {
                 value={formData.shopifyClientId}
                 onChange={handleChange}
                 placeholder="Enter Shopify Client ID"
+              />
+            </div>
+            <div className="col-span-1 lg:col-span-2">
+              <Label>Shopify Admin API Access Key</Label>
+              <Input
+                type="text"
+                name="shopifyAdminApiKey"
+                value={formData.shopifyAdminApiKey}
+                onChange={handleChange}
+                placeholder="shpat_..."
               />
             </div>
             <div className="col-span-1 lg:col-span-2">
