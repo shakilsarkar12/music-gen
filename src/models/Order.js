@@ -20,7 +20,15 @@ const OrderSchema = new mongoose.Schema(
     taskId: {
       type: String,
       required: true,
+      index: true, // Used to match with Shopify later
+    },
+    musicId: {
+      type: String,
       index: true,
+      unique: true,
+      sparse: true, // Public-facing opaque ID exposed in the cart line item.
+      // Never expose taskId itself to the customer/browser — use this to
+      // look up the real taskId server-side (e.g. for admin/support tools).
     },
     occasion: String,
     forWho: String,
@@ -30,17 +38,17 @@ const OrderSchema = new mongoose.Schema(
     mood: String,
     lyrics: String,
     musicTracks: [TrackSchema],
-    selectedDemo: String,
+    selectedDemo: String, // ID of the track they favorited
     selectedPackage: String,
     orderNotes: String,
     shopifyProductId: {
       type: String,
-      index: true,
+      index: true, // The Shopify product this order/song was generated against
     },
-    shopifyVariantId: String,
+    shopifyVariantId: String, // The variant added to the Shopify cart
     status: {
       type: String,
-      default: "pending_payment",
+      default: "pending_payment", // Initial state
     },
   },
   { timestamps: true }
