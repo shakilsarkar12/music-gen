@@ -189,6 +189,7 @@ export default async function ShopifyOrderDetailsPage({ params }) {
                           <div className="mt-3 flex items-center gap-4">
                             <audio
                               controls
+                              controlsList="nodownload noremoteplayback nosaveplayback noplaybackrate nofullscreen"
                               src={matchedMusic.track.audioUrl || matchedMusic.track.streamAudioUrl}
                               className="h-10 w-full max-w-[300px]"
                             />

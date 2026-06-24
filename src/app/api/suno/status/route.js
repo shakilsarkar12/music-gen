@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Order from "@/models/Order";
+import Notification from "@/models/Notification";
 import { getSettings } from "@/lib/getSettings";
 import { withCORS, handleOptions } from "@/lib/cors";
 
@@ -103,6 +104,14 @@ export async function GET(request) {
                 lyrics: track.prompt,
               }));
               await existingOrder.save();
+
+              // Create notification
+              await Notification.create({
+                title: "Music Generation Complete",
+                message: `The song for ${existingOrder.email} is ready!`,
+                type: "music_generated",
+                link: `/ordered-musics/${existingOrder._id}`
+              });
             }
           }
         } catch (dbErr) {

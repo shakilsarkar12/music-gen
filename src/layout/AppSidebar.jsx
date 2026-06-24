@@ -272,16 +272,15 @@ const AppSidebar = () => {
                   height={60}
                   style={{ height: 'auto' }}
                 />
+                <Image
+                  className="hidden dark:block"
+                  src={logoImage}
+                  alt="Logo"
+                  width={60}
+                  height={60}
+                />
                 Dashboard
               </div>
-
-              <Image
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
-                alt="Logo"
-                width={80}
-                height={40}
-              />
             </>
           ) : (
             <Image

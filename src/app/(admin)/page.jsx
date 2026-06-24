@@ -11,6 +11,9 @@ export const metadata = {
   description: "This is Next.js Home for TailAdmin Dashboard Template",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function Ecommerce() {
   const metrics = await getDashboardMetrics();
 
@@ -20,13 +23,28 @@ export default async function Ecommerce() {
         <EcommerceMetrics 
           totalCustomers={metrics.totalCustomers} 
           totalOrders={metrics.totalOrders} 
+          customersThisMonth={metrics.customersThisMonth}
+          customersLastMonth={metrics.customersLastMonth}
+          generatedOrdersThisMonth={metrics.generatedOrdersThisMonth}
+          generatedOrdersLastMonth={metrics.generatedOrdersLastMonth}
+          shopifyTotalOrders={metrics.shopifyTotalOrders}
+          shopifyOrdersThisMonth={metrics.shopifyOrdersThisMonth}
+          shopifyOrdersLastMonth={metrics.shopifyOrdersLastMonth}
+          addedToCartTotal={metrics.addedToCartTotal}
+          addedToCartThisMonth={metrics.addedToCartThisMonth}
+          addedToCartLastMonth={metrics.addedToCartLastMonth}
         />
 
         <MonthlySalesChart chartData={metrics.chartData} />
       </div>
 
       <div className="col-span-12 xl:col-span-5">
-        <MonthlyTarget />
+        <MonthlyTarget 
+          revenueThisMonth={metrics.revenueThisMonth}
+          revenueLastMonth={metrics.revenueLastMonth}
+          revenueToday={metrics.revenueToday}
+          monthlyTarget={metrics.monthlyTarget}
+        />
       </div>
       <div className="col-span-12 xl:col-span-12">
         <RecentOrders recentOrders={metrics.recentOrders} />

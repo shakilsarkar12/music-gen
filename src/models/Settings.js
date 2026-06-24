@@ -9,9 +9,14 @@ const SettingsSchema = new mongoose.Schema(
     sunoApiKey: { type: String, default: "" },
     notificationEmail: { type: String, default: "" },
     contactPhone: { type: String, default: "" },
+    monthlyTarget: { type: Number, default: 20000 },
   },
   { timestamps: true }
 );
 
-const Settings = mongoose.models.Settings || mongoose.model("Settings", SettingsSchema);
+if (mongoose.models.Settings) {
+  delete mongoose.models.Settings;
+}
+
+const Settings = mongoose.model("Settings", SettingsSchema);
 export default Settings;

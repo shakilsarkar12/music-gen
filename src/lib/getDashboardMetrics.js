@@ -6,22 +6,53 @@ export async function getDashboardMetrics() {
   await dbConnect();
 
   try {
-    // Basic counts
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // Basic total counts
     const totalOrders = await Order.countDocuments({});
-    
-    // Distinct customers based on email
     const distinctCustomers = await Order.distinct("email");
     const totalCustomers = distinctCustomers.length;
 
-    // Fetch recent 5 Shopify orders instead of DB orders
+    // Growth counts
+    const generatedOrdersThisMonth = await Order.countDocuments({ createdAt: { $gte: startOfThisMonth } });
+    const generatedOrdersLastMonth = await Order.countDocuments({ createdAt: { $gte: startOfLastMonth, $lt: startOfThisMonth } });
+
+    const customersThisMonthList = await Order.distinct("email", { createdAt: { $gte: startOfThisMonth } });
+    const customersLastMonthList = await Order.distinct("email", { createdAt: { $gte: startOfLastMonth, $lt: startOfThisMonth } });
+    const customersThisMonth = customersThisMonthList.length;
+    const customersLastMonth = customersLastMonthList.length;
+
+    // Shopify metrics
     const settings = await getSettings();
     let shopifyRecentOrders = [];
+    let revenueThisMonth = 0;
+    let revenueLastMonth = 0;
+    let revenueToday = 0;
+    let shopifyTotalOrders = 0;
+    let shopifyOrdersThisMonth = 0;
+    let shopifyOrdersLastMonth = 0;
+
     if (settings.shopUrl && settings.shopifyAdminApiKey) {
       try {
         let url = settings.shopUrl;
         if (!url.startsWith('http')) url = `https://${url}`;
         
-        const response = await fetch(`${url}/admin/api/2024-04/orders.json?status=any&limit=5`, {
+        // Fetch total count
+        const countResponse = await fetch(`${url}/admin/api/2024-04/orders/count.json?status=any`, {
+          headers: {
+            "X-Shopify-Access-Token": settings.shopifyAdminApiKey,
+            "Content-Type": "application/json"
+          },
+          cache: "no-store"
+        });
+        const countData = await countResponse.json();
+        shopifyTotalOrders = countData.count || 0;
+
+        const response = await fetch(`${url}/admin/api/2024-04/orders.json?status=any&limit=250&created_at_min=${startOfLastMonth.toISOString()}`, {
           headers: {
             "X-Shopify-Access-Token": settings.shopifyAdminApiKey,
             "Content-Type": "application/json"
@@ -30,15 +61,35 @@ export async function getDashboardMetrics() {
         });
         const data = await response.json();
         if (data.orders) {
-          shopifyRecentOrders = data.orders;
+          shopifyRecentOrders = data.orders.slice(0, 5); // Just first 5 for the table
+          
+          data.orders.forEach(order => {
+            const orderDate = new Date(order.created_at);
+            const price = parseFloat(order.total_price) || 0;
+            
+            if (orderDate >= startOfThisMonth) {
+              revenueThisMonth += price;
+              shopifyOrdersThisMonth += 1;
+            } else if (orderDate >= startOfLastMonth && orderDate <= endOfLastMonth) {
+              revenueLastMonth += price;
+              shopifyOrdersLastMonth += 1;
+            }
+            
+            if (orderDate >= startOfToday) {
+              revenueToday += price;
+            }
+          });
         }
       } catch (err) {
         console.error("Error fetching recent Shopify orders:", err);
       }
     }
 
+    let addedToCartTotal = Math.max(0, totalOrders - shopifyTotalOrders);
+    let addedToCartThisMonth = Math.max(0, generatedOrdersThisMonth - shopifyOrdersThisMonth);
+    let addedToCartLastMonth = Math.max(0, generatedOrdersLastMonth - shopifyOrdersLastMonth);
+
     // For MonthlySalesChart (Let's group by date for the last 7 days)
-    // To make it simple without complex aggregations, let's just do a basic aggregate
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
     sevenDaysAgo.setHours(0, 0, 0, 0);
@@ -81,7 +132,21 @@ export async function getDashboardMetrics() {
       chartData: {
         categories: chartCategories,
         series: chartSeriesData
-      }
+      },
+      revenueThisMonth,
+      revenueLastMonth,
+      revenueToday,
+      customersThisMonth,
+      customersLastMonth,
+      generatedOrdersThisMonth,
+      generatedOrdersLastMonth,
+      shopifyTotalOrders,
+      shopifyOrdersThisMonth,
+      shopifyOrdersLastMonth,
+      addedToCartTotal,
+      addedToCartThisMonth,
+      addedToCartLastMonth,
+      monthlyTarget: settings.monthlyTarget
     };
   } catch (error) {
     console.error("Error fetching dashboard metrics:", error);
@@ -89,7 +154,21 @@ export async function getDashboardMetrics() {
       totalOrders: 0,
       totalCustomers: 0,
       recentOrders: [],
-      chartData: { categories: [], series: [] }
+      chartData: { categories: [], series: [] },
+      revenueThisMonth: 0,
+      revenueLastMonth: 0,
+      revenueToday: 0,
+      customersThisMonth: 0,
+      customersLastMonth: 0,
+      generatedOrdersThisMonth: 0,
+      generatedOrdersLastMonth: 0,
+      shopifyTotalOrders: 0,
+      shopifyOrdersThisMonth: 0,
+      shopifyOrdersLastMonth: 0,
+      addedToCartTotal: 0,
+      addedToCartThisMonth: 0,
+      addedToCartLastMonth: 0,
+      monthlyTarget: 20000
     };
   }
 }

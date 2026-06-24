@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Settings from "@/models/Settings";
+import { clearSettingsCache } from "@/lib/getSettings";
 
 export async function GET() {
   try {
@@ -30,6 +31,8 @@ export async function PUT(request) {
       { $set: data },
       { new: true, upsert: true }
     );
+
+    clearSettingsCache();
 
     return NextResponse.json({ message: "Settings updated successfully", settings }, { status: 200 });
   } catch (error) {

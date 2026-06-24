@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Order from "@/models/Order";
+import Notification from "@/models/Notification";
 import { getSettings } from "@/lib/getSettings";
 import { withCORS, handleOptions } from "@/lib/cors";
 
@@ -117,7 +118,7 @@ export async function POST(request) {
     if (taskId) {
       try {
         await dbConnect();
-        await Order.create({
+        const newOrder = await Order.create({
           taskId: taskId,
           email: formData.email,
           occasion: formData.occasion,
@@ -128,6 +129,14 @@ export async function POST(request) {
           mood: formData.mood,
           lyrics: formData.lyrics || lyrics,
           status: "pending_payment"
+        });
+
+        // Create a notification
+        await Notification.create({
+          title: "New Item Added to Cart",
+          message: `${formData.email} started generating a song`,
+          type: "added_to_cart",
+          link: `/ordered-musics/${newOrder._id}`
         });
       } catch (dbErr) {
         console.error("[generate-music] DB Error:", dbErr);
