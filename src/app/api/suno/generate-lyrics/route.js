@@ -15,7 +15,8 @@ export async function POST(request) {
     const originHeader = request.headers.get("origin") || "";
     const refererHeader = request.headers.get("referer") || "";
     const allowedOrigins = [
-      settings.shopUrl,
+      settings.shopUrl1,
+      settings.shopUrl2,
       process.env.NEXT_PUBLIC_APP_URL,
       "http://localhost:3000",
       "http://localhost:3001",

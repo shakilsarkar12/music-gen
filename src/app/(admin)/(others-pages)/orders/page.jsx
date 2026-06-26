@@ -16,11 +16,11 @@ export default async function OrdersPage() {
   let orders = [];
   let errorMsg = null;
 
-  if (!settings.shopUrl || !settings.shopifyAdminApiKey) {
+  if (!settings.shopUrl1 || !settings.shopifyAdminApiKey) {
     errorMsg = "Shopify integration is not configured. Please add Shop URL and Admin API Key in Settings.";
   } else {
     try {
-      let url = settings.shopUrl;
+      let url = settings.shopUrl1;
       if (!url.startsWith('http')) url = `https://${url}`;
       
       const response = await fetch(`${url}/admin/api/2024-04/orders.json?status=any&limit=50`, {

@@ -34,7 +34,8 @@ export default function SettingsPage() {
           shopifySecretId: data.shopifySecretId || "",
           shopifyClientId: data.shopifyClientId || "",
           shopifyAdminApiKey: data.shopifyAdminApiKey || "",
-          shopUrl: data.shopUrl || "",
+          shopUrl1: data.shopUrl1 || "",
+          shopUrl2: data.shopUrl2 || "",
           sunoApiKey: data.sunoApiKey || "",
           notificationEmail: data.notificationEmail || "",
           contactPhone: data.contactPhone || "",
@@ -89,7 +90,7 @@ export default function SettingsPage() {
       <PageBreadcrumb pageTitle="Platform Settings" />
 
       <form onSubmit={handleSave} className="space-y-6">
-        
+
         {/* Shopify Integration Settings */}
         <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 bg-white dark:bg-white/[0.03]">
           <h4 className="mb-6 text-lg font-semibold text-gray-800 dark:text-white/90">
@@ -130,10 +131,20 @@ export default function SettingsPage() {
               <Label>Shop URL</Label>
               <Input
                 type="text"
-                name="shopUrl"
-                value={formData.shopUrl}
+                name="shopUrl1"
+                value={formData.shopUrl1}
                 onChange={handleChange}
                 placeholder="e.g., https://your-store.myshopify.com"
+              />
+            </div>
+            <div className="col-span-1 lg:col-span-2">
+              <Label>Host URL</Label>
+              <Input
+                type="text"
+                name="shopUrl2"
+                value={formData.shopUrl2}
+                onChange={handleChange}
+                placeholder="e.g., https://your-domain.com"
               />
             </div>
           </div>

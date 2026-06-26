@@ -25,11 +25,11 @@ export default async function ShopifyOrderDetailsPage({ params }) {
   let errorMsg = null;
   let matchedMusicInfo = []; // Array to store matched music for each line item
 
-  if (!settings.shopUrl || !settings.shopifyAdminApiKey) {
+  if (!settings.shopUrl1 || !settings.shopifyAdminApiKey) {
     errorMsg = "Shopify integration is not configured.";
   } else {
     try {
-      let url = settings.shopUrl;
+      let url = settings.shopUrl1;
       if (!url.startsWith('http')) url = `https://${url}`;
 
       const response = await fetch(`${url}/admin/api/2024-04/orders/${id}.json`, {
