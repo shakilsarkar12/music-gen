@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import dbConnect from "@/lib/mongoose";
 import Notification from "@/models/Notification";
+import Order from "@/models/Order";
 import { getSettings } from "@/lib/getSettings";
 
 export async function POST(request) {
@@ -32,11 +33,53 @@ export async function POST(request) {
     const orderData = JSON.parse(rawBody);
 
     await dbConnect();
+
+    // Check if the order has line items with a musicId property
+    if (orderData.line_items && Array.isArray(orderData.line_items)) {
+      const financialStatus = orderData.financial_status || "pending";
+      // Map Shopify paid status to our system
+      const newStatus = financialStatus; // "paid", "pending", "refunded" etc.
+
+      let updated = false;
+
+      for (const item of orderData.line_items) {
+        if (item.properties && Array.isArray(item.properties)) {
+          // Case-insensitive lookup — storefront may send "Music ID", "musicId", "_musicId" etc.
+          const musicIdProp = item.properties.find(
+            (p) => ["_musicid", "musicid", "music id"].includes(p.name?.toLowerCase())
+          );
+          if (musicIdProp && musicIdProp.value) {
+            const result = await Order.findOneAndUpdate(
+              { musicId: musicIdProp.value },
+              { $set: { status: newStatus } }
+            );
+            if (result) {
+              updated = true;
+              console.log(`[Shopify Webhook] Updated music ${musicIdProp.value} → ${newStatus}`);
+            }
+          }
+        }
+      }
+
+      // Fallback: if no musicId property found, try matching by customer email
+      if (!updated && orderData.email) {
+        const updateResult = await Order.updateMany(
+          {
+            email: orderData.email,
+            status: { $in: ["in_cart", "created", "pending_payment"] }
+          },
+          { $set: { status: newStatus } }
+        );
+        if (updateResult.modifiedCount > 0) {
+          console.log(`[Shopify Webhook] Fallback: updated ${updateResult.modifiedCount} orders for ${orderData.email} → ${newStatus}`);
+        }
+      }
+    }
     
     // Create notification
     await Notification.create({
-      title: "New Shopify Order",
-      message: `Order #${orderData.order_number} placed by ${orderData.email || 'a customer'} for $${orderData.total_price}`,
+      title: "Shopify Order Update",
+      message: `Order #${orderData.order_number} (${orderData.financial_status}) by ${orderData.email || 'a customer'} for $${orderData.total_price}`,
       type: "shopify_order",
       link: `https://${shopDomain}/admin/orders/${orderData.id}`
     });

@@ -26,6 +26,14 @@ export async function POST(request) {
       );
     }
 
+    const existingOrder = await Order.findOne({ email: formData.email, taskId: taskId });
+    let newStatus = existingOrder?.status || "created";
+
+    // If they selected a package and the order isn't already paid or pending from Shopify, mark it as in_cart
+    if (formData.selectedPackage && (newStatus === "created" || newStatus === "pending_payment")) {
+      newStatus = "in_cart";
+    }
+
     // Upsert the order: if it already exists for this taskId and email, update it.
     // Otherwise, create a new record.
     const order = await Order.findOneAndUpdate(
@@ -45,7 +53,7 @@ export async function POST(request) {
           musicId: musicId || undefined, // opaque public ID — maps back to this taskId for support/admin lookups
           shopifyProductId: productId || undefined,
           shopifyVariantId: variantId || undefined,
-          // Do not overwrite status if it's already updated to something else like "paid"
+          status: newStatus,
         },
       },
       { new: true, upsert: true, setDefaultsOnInsert: true }

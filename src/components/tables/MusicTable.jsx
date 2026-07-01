@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -30,6 +31,29 @@ function handleDownload(url, filename) {
 }
 
 export default function MusicTable({ orders }) {
+  const router = useRouter();
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
+
+  async function handleSyncShopify() {
+    setSyncing(true);
+    setSyncMsg("");
+    try {
+      const res = await fetch("/api/shopify/sync-status", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setSyncMsg(data.message || "Synced!");
+        router.refresh(); // Re-fetch server data
+      } else {
+        setSyncMsg(data.error || "Sync failed");
+      }
+    } catch {
+      setSyncMsg("Network error");
+    } finally {
+      setSyncing(false);
+    }
+  }
+
   if (!orders || orders.length === 0) {
     return (
       <div className="p-6 text-center text-gray-500 dark:text-gray-400">
@@ -40,6 +64,23 @@ export default function MusicTable({ orders }) {
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+      {/* Sync Button */}
+      {/* <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-white/[0.05]">
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          {syncMsg && <span className={syncMsg.includes("fail") || syncMsg.includes("error") ? "text-red-500" : "text-green-600"}>{syncMsg}</span>}
+        </span>
+        <button
+          onClick={handleSyncShopify}
+          disabled={syncing}
+          className="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-orange-600 disabled:opacity-60"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="1 4 1 10 7 10" /><polyline points="23 20 23 14 17 14" />
+            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15" />
+          </svg>
+          {syncing ? "Syncing..." : "Sync with Shopify"}
+        </button>
+      </div> */}
       <div className="max-w-full overflow-x-auto">
         <div className="min-w-[1102px]">
           <Table>
@@ -117,12 +158,24 @@ export default function MusicTable({ orders }) {
                         color={
                           order.status === "paid"
                             ? "success"
-                            : order.status === "pending_payment"
-                              ? "warning"
-                              : "error"
+                            : order.status === "in_cart"
+                              ? "info"
+                              : order.status === "created"
+                                ? "light"
+                                : (order.status === "pending" || order.status === "pending_payment")
+                                  ? "warning"
+                                  : "error"
                         }
                       >
-                        {order.status}
+                        {order.status === "created"
+                          ? "Created"
+                          : order.status === "in_cart"
+                            ? "In Cart"
+                            : (order.status === "pending" || order.status === "pending_payment")
+                              ? "Payment Pending"
+                              : order.status === "paid"
+                                ? "Paid"
+                                : order.status}
                       </Badge>
                     </TableCell>
 

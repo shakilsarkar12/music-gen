@@ -48,7 +48,7 @@ const OrderSchema = new mongoose.Schema(
     shopifyVariantId: String, // The variant added to the Shopify cart
     status: {
       type: String,
-      default: "pending_payment", // Initial state
+      default: "created", // Initial state when generated but not added to cart
     },
   },
   { timestamps: true }

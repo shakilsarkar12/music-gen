@@ -129,7 +129,7 @@ export async function POST(request) {
           voice: formData.voice,
           mood: formData.mood,
           lyrics: formData.lyrics || lyrics,
-          status: "pending_payment"
+          status: "created"
         });
 
         // Create a notification
