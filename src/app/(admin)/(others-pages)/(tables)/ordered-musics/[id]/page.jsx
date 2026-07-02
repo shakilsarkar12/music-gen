@@ -6,6 +6,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import Badge from "@/components/ui/badge/Badge";
 import { notFound } from "next/navigation";
 import { getSettings } from "@/lib/getSettings";
+import SyncMusicButton from "@/components/common/SyncMusicButton";
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +52,8 @@ export default async function OrderedMusicDetailPage({ params }) {
   const serialized = JSON.parse(JSON.stringify(order));
   const selectedTrack = serialized.musicTracks?.find(t => t.id === serialized.selectedDemo) || serialized.musicTracks?.[0];
 
+  const needsSync = !!serialized.taskId && (!serialized.musicTracks || serialized.musicTracks.length === 0 || serialized.musicTracks.some(t => !t.audioUrl || !t.duration));
+
   return (
     <div>
       <PageBreadcrumb pageTitle="Song Details" />
@@ -62,7 +65,10 @@ export default async function OrderedMusicDetailPage({ params }) {
           
           {/* Customer Info */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-            <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">Customer Information</h3>
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Customer Information</h3>
+              <SyncMusicButton taskId={serialized.taskId} needsSync={needsSync} />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               {[
                 ["Email", serialized.email],
